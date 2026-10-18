@@ -1,7 +1,7 @@
 import sys
+from pathlib import Path
 from PyQt6.QtCore import Qt
-from PyQt6.QtWidgets import (QApplication, QWidget, QLabel,
-                             QPushButton, QHBoxLayout, QVBoxLayout)
+from PyQt6.QtWidgets import QApplication, QWidget, QLabel, QPushButton, QHBoxLayout, QVBoxLayout
 
 
 class Compteur(QWidget):
@@ -11,13 +11,11 @@ class Compteur(QWidget):
         self.setMinimumSize(250, 180)
         self.valeur = 0
 
-        # Les éléments de la fenêtre
-        self.label = QLabel(str(self.valeur))
+        self.label = QLabel("0")
         self.label.setAlignment(Qt.AlignmentFlag.AlignCenter)
         self.btn_moins = QPushButton("-")
         self.btn_plus = QPushButton("+")
 
-        # La mise en page : les 2 boutons côte à côte, sous le label
         boutons = QHBoxLayout()
         boutons.addWidget(self.btn_moins)
         boutons.addWidget(self.btn_plus)
@@ -25,8 +23,22 @@ class Compteur(QWidget):
         layout.addWidget(self.label)
         layout.addLayout(boutons)
 
+        self.btn_plus.clicked.connect(self.plus)
+        self.btn_moins.clicked.connect(self.moins)
+
+    def plus(self):
+        if self.valeur < 100:
+            self.valeur += 1
+            self.label.setText(str(self.valeur))
+
+    def moins(self):
+        if self.valeur > 0:
+            self.valeur -= 1
+            self.label.setText(str(self.valeur))
+
 
 app = QApplication(sys.argv)
+app.setStyleSheet(Path(__file__).with_name("compteur.qss").read_text())
 fenetre = Compteur()
 fenetre.show()
 sys.exit(app.exec())
