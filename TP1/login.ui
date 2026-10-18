@@ -43,6 +43,9 @@
    </item>
    <item>
     <widget class="QPushButton" name="btnLogin">
+     <property name="cursor">
+      <cursorShape>PointingHandCursor</cursorShape>
+     </property>
      <property name="text">
       <string>Se connecter</string>
      </property>

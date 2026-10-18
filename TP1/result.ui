@@ -26,6 +26,9 @@
    </item>
    <item>
     <widget class="QPushButton" name="btnLogout">
+     <property name="cursor">
+      <cursorShape>PointingHandCursor</cursorShape>
+     </property>
      <property name="text">
       <string>Déconnexion</string>
      </property>
