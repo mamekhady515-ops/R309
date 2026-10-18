@@ -28,6 +28,7 @@ class Authentification(QStackedWidget):
         self.page_result = uic.loadUi(str(DOSSIER / "result.ui"))
         self.addWidget(self.page_login)
         self.addWidget(self.page_result)
+        self.page_result.chkDeleteToken.hide()
 
         self.page_login.btnLogin.clicked.connect(self.connexion)
         self.page_login.editUser.returnPressed.connect(self.connexion)

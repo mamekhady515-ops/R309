@@ -32,21 +32,34 @@ class Authentification(QStackedWidget):
         boite = QMessageBox(QMessageBox.Icon.Warning, "Erreur", texte, parent=self)
         boite.open()
 
+    def afficher_login(self):
+        if self.token:
+            self.page_login.lblTitle.setText("Token exists")
+            self.page_login.btnLogin.setText("Verify token")
+            self.page_login.editUser.hide()
+            self.page_login.editPassword.hide()
+        else:
+            self.page_login.lblTitle.setText("Connexion")
+            self.page_login.btnLogin.setText("Se connecter")
+            self.page_login.editUser.show()
+            self.page_login.editPassword.show()
+
     @qasync.asyncSlot()
     async def connexion(self):
-        user = self.page_login.editUser.text()
-        pwd = self.page_login.editPassword.text()
         self.page_login.btnLogin.setEnabled(False)
         self.page_login.lblTitle.setText("Vérification en cours...")
 
         try:
             async with aiohttp.ClientSession() as session:
-                async with session.post(LOGIN_URL, json={"user": user, "pwd": pwd}) as rep:
-                    if rep.status != 200:
-                        raise Exception(f"Erreur HTTP {rep.status} pour {LOGIN_URL}")
-                    data = await rep.json()
-                    self.token = data["token"]
-                print("Token :", self.token)
+                if self.token is None:
+                    user = self.page_login.editUser.text()
+                    pwd = self.page_login.editPassword.text()
+                    async with session.post(LOGIN_URL, json={"user": user, "pwd": pwd}) as rep:
+                        if rep.status != 200:
+                            raise Exception(f"Erreur HTTP {rep.status} pour {LOGIN_URL}")
+                        data = await rep.json()
+                        self.token = data["token"]
+                    print("Token :", self.token)
 
                 entete = {"Authorization": f"Bearer {self.token}"}
                 async with session.get(VERIFY_URL, headers=entete) as rep:
@@ -57,16 +70,20 @@ class Authentification(QStackedWidget):
                 self.page_result.lblTitle.setText(f"Bienvenue {data['user']} !")
                 self.setCurrentWidget(self.page_result)
             else:
+                self.token = None
                 self.erreur(data["error"])
         except Exception as e:
             self.erreur(str(e))
 
         self.page_login.btnLogin.setEnabled(True)
-        self.page_login.lblTitle.setText("Connexion")
         self.page_login.editPassword.clear()
+        self.afficher_login()
 
     def deconnexion(self):
+        if self.page_result.chkDeleteToken.isChecked():
+            self.token = None
         self.page_login.editUser.clear()
+        self.afficher_login()
         self.setCurrentWidget(self.page_login)
 
 
